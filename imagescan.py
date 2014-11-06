@@ -32,7 +32,7 @@ UBOUND = 255
 MIN_SATURATION = 30 # avoid washed out pixels influencing counts
 
 # Base folder for the processFolder function, it'll iterate over here on subfolders
-FOLDER = '/home/jaymz/documents/crooked-docs/data-export/store-migration/product-images/'
+FOLDER = '/home/leafiy/color-analysis/9'
 
 # Meh, i need to flip between these two, you can probably tweak this :)
 SUMMARY_FORMAT, SQL_FORMAT = True, True
@@ -214,11 +214,13 @@ def processFolder(folder):
                 if "jpg" in image and "._" not in image:
                     folder_images.append(image)
             folder_images.sort()
-            j = os.path.join(image_folder, folder_images[1])
-            if SUMMARY_FORMAT:
-                print "working: "+j
-            i = Image.open(j)
-            processImage(i, image_folder.split('/')[-1])
+            for idx,val in enumerate(folder_images):
+                #print idx,val
+                j = os.path.join(image_folder, folder_images[idx])
+                if SUMMARY_FORMAT:
+                    print "working: "+j+':L' +folder_images[idx]
+                i = Image.open(j)
+                processImage(i, folder_images[idx])
         except:
             pass
 
@@ -227,14 +229,7 @@ def processFile(_file):
     processImage(i)
 
 if __name__ == "__main__":
-    try:
-        if 'product-images' not in sys.argv[1]:
-            processFile('product-images/'+sys.argv[1])
-        else:
-            processFile(sys.argv[1])
-    except IndexError:
-        processFolder(FOLDER)
+    processFolder(FOLDER)
     output.close()
-
 
 
