@@ -22,7 +22,11 @@ from copy import copy
 from operator import itemgetter
 from decimal import Decimal
 
-output = open('colors.csv', 'w')
+name = os.getcwd()
+m = name.rfind('/')
+n = name[m+1:]
+print n
+output = open(n+'.csv', 'w')
 
 # Pixels will be first compared to these values before being
 # added to the data list of color information on the first pass
@@ -32,7 +36,7 @@ UBOUND = 255
 MIN_SATURATION = 30 # avoid washed out pixels influencing counts
 
 # Base folder for the processFolder function, it'll iterate over here on subfolders
-FOLDER = '/home/leafiy/color-analysis/9'
+FOLDER = name
 
 # Meh, i need to flip between these two, you can probably tweak this :)
 SUMMARY_FORMAT, SQL_FORMAT = True, True
@@ -158,8 +162,8 @@ def processImage(i, name=None):
 
   pcnt += 1
 
-  if SUMMARY_FORMAT:
-    print "\nDominant Hue: %s %s" % (TONE[tone], COLOR[max_hbin])
+  # if SUMMARY_FORMAT:
+  #   print "\nDominant Hue: %s %s" % (TONE[tone], COLOR[max_hbin])
 
   if SQL_FORMAT and name and max(primary_cnts) > 30:
     output.write('%d, %s, %s\n' % (pcnt, name, SQL_IDS[' '.join([TONE[tone], COLOR[max_hbin]]).strip()]))
@@ -173,56 +177,54 @@ def processImage(i, name=None):
   tone = primary_cnts.index(max(primary_cnts))
   max_hbin = primary_idx[tone]
 
-  if SUMMARY_FORMAT:
-    print "Secondary Hue: %s %s" % (TONE[tone], COLOR[max_hbin])
+  # if SUMMARY_FORMAT:
+  #   print "Secondary Hue: %s %s" % (TONE[tone], COLOR[max_hbin])
 
-  if SQL_FORMAT and name and max(primary_cnts) > 30:
-    pcnt += 1
-    output.write('%d, %s, %s\n' % (pcnt, name, SQL_IDS[' '.join([TONE[tone], COLOR[max_hbin]]).strip()]))
+  # if SQL_FORMAT and name and max(primary_cnts) > 30:
+  #   pcnt += 1
+  #   output.write('%d, %s, %s\n' % (pcnt, name, SQL_IDS[' '.join([TONE[tone], COLOR[max_hbin]]).strip()]))
 
   # area to rewrite ends...
 
-  gray_total = [(g[0]+g[1]+g[2])/3 for g in grays]
-  gray_average = reduce(lambda x,y : x+y, gray_total)/len(gray_total)
+  # gray_total = [(g[0]+g[1]+g[2])/3 for g in grays]
+  # gray_average = reduce(lambda x,y : x+y, gray_total)/len(gray_total)
 
-  black_percent = black_count/float(total_samples)*100
-  gray_percent = len(gray_total)/float(total_samples)*100
-  white_percent = white_count/float(total_samples)*100
+  # black_percent = black_count/float(total_samples)*100
+  # gray_percent = len(gray_total)/float(total_samples)*100
+  # white_percent = white_count/float(total_samples)*100
 
-  if SUMMARY_FORMAT:
-    print "\nAverage Gray: %s (samples: %0.1f%%), White count: %s (%0.1f%%), Black count: %s (%0.1f%%)" % (gray_average, gray_percent, white_count, white_percent, black_count, black_percent)
-    print "Total samples taken: %s\n\n" % total_samples
+  # if SUMMARY_FORMAT:
+  #   # print "\nAverage Gray: %s (samples: %0.1f%%), White count: %s (%0.1f%%), Black count: %s (%0.1f%%)" % (gray_average, gray_percent, white_count, white_percent, black_count, black_percent)
+  #   print "Total samples taken: %s\n\n" % total_samples
 
-  if SQL_FORMAT:
-    if black_percent > 10:
-        pcnt += 1
-        output.write('%d, %s, %d\n' % (pcnt, name, 38))
-    if gray_percent > 10:
-        pcnt += 1
-        output.write('%d, %s, %d\n' % (pcnt, name, 37))
-    if white_percent > 30:
-        pcnt += 1
-        output.write('%d, %s, %d\n' % (pcnt, name, 39))
+  # if SQL_FORMAT:
+  #   if black_percent > 10:
+  #       pcnt += 1
+  #       output.write('%d, %s, %d\n' % (pcnt, name, 38))
+  #   if gray_percent > 10:
+  #       pcnt += 1
+  #       output.write('%d, %s, %d\n' % (pcnt, name, 37))
+  #   if white_percent > 30:
+  #       pcnt += 1
+  #       output.write('%d, %s, %d\n' % (pcnt, name, 39))
 
 # Helper functions follow along with __main__ def
 
 def processFolder(folder):
     for image_folder in glob.glob(folder+'*'):
-        try:
+
             folder_images = []
             for image in os.listdir(image_folder):
                 if "jpg" in image and "._" not in image:
                     folder_images.append(image)
             folder_images.sort()
             for idx,val in enumerate(folder_images):
-                #print idx,val
+                print idx,val
                 j = os.path.join(image_folder, folder_images[idx])
-                if SUMMARY_FORMAT:
-                    print "working: "+j+':L' +folder_images[idx]
+                print "working: "+folder_images[idx]
                 i = Image.open(j)
                 processImage(i, folder_images[idx])
-        except:
-            pass
+
 
 def processFile(_file):
     i = Image.open(_file)
@@ -231,5 +233,4 @@ def processFile(_file):
 if __name__ == "__main__":
     processFolder(FOLDER)
     output.close()
-
 
